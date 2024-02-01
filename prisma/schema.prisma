@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  userId      Int      @id @default(autoincrement()) @map("userId")
+  email       String   @unique @map("email")
+  password    String   @map("password")
+  createdAt   DateTime @default(now()) @map("createdAt")
+  updatedAt   DateTime @updatedAt @map("updatedAt")
+
+  UserInfos   UserInfos[]
+  Resumes     Resumes[]
+  @@map("Users")  
+}
+
+model Resumes {
+  resumeId    Int      @id @default(autoincrement()) @map("resumeId")
+  userId      Int      @map("userId")
+  userInfoId  Int     
+  title       String   @map("title")
+  status      String   @map("status")
+  Education   String?  @map("Education") @db.Text
+  license     String?  @map("license") @db.Text
+  Experience  String?  @map("Experience") @db.Text
+  skill       String?  @map("skill") @db.Text
+  history     String?  @map("history") @db.Text
+  createdAt   DateTime @default(now()) @map("createdAt")
+  updatedAt   DateTime @updatedAt @map("updatedAt")
+
+  User        Users     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  UserInfos   UserInfos @relation(fields: [userInfoId], references: [userInfoId]) // Resumes 모델에 UserInfos 모델과의 일대일 관계 설정
+  @@map("Resumes")
+}
+
+model UserInfos {
+  userInfoId    Int      @id @default(autoincrement()) @map("userInfoId")
+  userId        Int      @map("userId")
+  name          String   @map("name")
+  age           Int?     @map("age")
+  gender        String   @map("gender")
+  profileImage  String?  @map("profileImage")
+  createdAt     DateTime @default(now()) @map("createdAt")
+  updatedAt     DateTime @updatedAt @map("updatedAt")
+
+  User          Users    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  Resumes       Resumes[] // UserInfos 모델에 Resumes 모델과의 일대다 관계 설정
+  @@map("UserInfos")
+}
